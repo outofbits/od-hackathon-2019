@@ -1,0 +1,593 @@
+@prefix : <http://finder.tuwien.ac.at/vocab/spatial#> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ogc: <http://www.opengis.net/ont/geosparql#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix voaf: <http://purl.org/vocommons/voaf#> .
+@prefix schema: <http://schema.org/> .
+
+<http://finder.tuwien.ac.at/vocab/spatial#> a owl:Ontology ;
+	owl:versionIRI :0.2-SNAPSHOT ;
+	owl:imports <http://www.opengis.net/ont/geosparql> , <http://www.w3.org/ns/locn> ;
+	dct:contributor <http://finder.tuwien.ac.at/person/id/Kevin_Haller> ;
+	dct:abstract """Diese Ontologie dient zur Repräsentation von Geodaten, die den 
+Campus einer Bildungseinrichtung betreffen. Sie soll die Strukturierung von Daten über
+Einrichtungen wie Gebäude ermöglichen um die Erfahrungen mit Suche und Navigation 
+zu verbessern."""@de ;
+	vann:preferredNamespaceUri "http://finder.tuwien.ac.at/vocab/spatial#"^^xsd:anyURI ;
+	voaf:reliesOn <http://www.opengis.net/ont/geosparql#> ;
+	dct:abstract """This is an ontology for representing geospatial details about the 
+campus of a educational institute such  like a university. t is intended to help 
+structuring data that describes facilities and their indoor plan in order to enhance 
+the search and navigation experience."""@en ;
+	rdfs:label "Vocabulary for geospatial data concerning the campus of educational institutes"@en ;
+	vann:preferredNamespacePrefix "tuvs" ;
+	dct:created "2016-07-1"@en ;
+	dct:title "Vocabulary for geospatial data concerning the campus of educational institutes"@en ,
+		"Vokabular für Geodaten, die sich auf den Campus einer Bildungseinrichtung beziehen"@de ;
+	rdfs:label "Vokabular für Geodaten, die sich auf den Campus einer Bildungseinrichtung beziehen"@de ;
+	voaf:reliesOn <http://www.w3.org/2000/01/rdf-schema#> , <http://schema.org/> ;
+	dct:modified "2016-12-01"@en .
+# 
+# 
+# 
+# ###################################
+# #
+# #    Object Properties
+# #
+# ###################################
+# 
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#aboveFloor
+
+:aboveFloor a owl:ObjectProperty , owl:TransitiveProperty , owl:IrreflexiveProperty ;
+	rdfs:domain :Floor ;
+	rdfs:range :Floor ;
+	rdfs:comment "Besagt, dass dieses Stockwerk topologisch über dem gegebenen Stockwerk liegt."@de , 
+	"States that this floor is topologically above the given floor."@en ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#"@de ;
+	rdfs:label "above floor"@en , "liegt über dem Stockwerk"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#containsBuilding
+
+:containsBuilding a owl:ObjectProperty ;
+	rdfs:subPropertyOf schema:containsPlace ;
+	owl:inverseOf :isPartOfCampus ;
+	rdfs:domain :Campus ;
+	rdfs:range :Building ;
+	rdfs:comment "Dieser Campus beinhaltet das gegebene Gebäude."@de , 
+	"This campus contains the given building."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "beinhaltet Gebäude"@de , "contains building"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#containsBuildingUnit
+
+:containsBuildingUnit a owl:ObjectProperty ;
+	rdfs:subPropertyOf schema:containsPlace ;
+	owl:inverseOf :isBuildingUnitOf ;
+	a owl:AsymmetricProperty , owl:TransitiveProperty , owl:IrreflexiveProperty ;
+	rdfs:domain _:genid1 .
+
+_:genid1 a owl:Class ;
+	owl:unionOf _:genid3 .
+
+_:genid3 a rdf:List ;
+	rdf:first :Building ;
+	rdf:rest _:genid2 .
+
+_:genid2 a rdf:List ;
+	rdf:first :BuildingUnit ;
+	rdf:rest rdf:nil .
+
+:containsBuildingUnit rdfs:range :BuildingUnit ;
+	rdfs:comment """Dieses Gebäude oder Gebäudeeinheit beinhaltet die gegebene Gebäudeeinheit
+als ganzes."""@de ,
+		"This building or building unit contains the given building unit completely."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has building unit"@en , "hat Gebäudeeinheit"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#floorSectionOf
+
+:floorSectionOf a owl:ObjectProperty ;
+	rdfs:subPropertyOf :isBuildingUnitOf ;
+	a owl:FunctionalProperty , owl:AsymmetricProperty , owl:TransitiveProperty , owl:IrreflexiveProperty ;
+	rdfs:domain :FloorSection ;
+	rdfs:range :Floor ;
+	rdfs:comment "Dieser Stockwerkbereich ist Teil des gegebenen Stockwerks."@de ,
+		"This floor section is part of the given floor."@de ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#" ;
+	rdfs:label "Stockwerkbereich von"@de , "floor section of"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#hasFloorSection
+
+:hasFloorSection a owl:ObjectProperty ;
+	rdfs:subPropertyOf :containsBuildingUnit ;
+	a owl:InverseFunctionalProperty , owl:AsymmetricProperty , owl:TransitiveProperty , owl:IrreflexiveProperty ;
+	rdfs:domain :BuildingUnit ;
+	rdfs:range :FloorSection ;
+	rdfs:comment "Dieses Stockwerk hat den gegebenen Stockwerkbereich."@de ,
+		"This floor has the given floor section."@en ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#" ;
+	rdfs:label "has floor section"@en , "hat einen Stockbereich"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#isBuildingUnitOf
+
+:isBuildingUnitOf a owl:ObjectProperty ;
+	rdfs:subPropertyOf schema:containedInPlace ;
+	a owl:AsymmetricProperty , owl:TransitiveProperty , owl:IrreflexiveProperty ;
+	rdfs:domain :BuildingUnit ;
+	rdfs:range _:genid4 .
+
+_:genid4 a owl:Class ;
+	owl:unionOf _:genid6 .
+
+_:genid6 a rdf:List ;
+	rdf:first :Building ;
+	rdf:rest _:genid5 .
+
+_:genid5 a rdf:List ;
+	rdf:first :BuildingUnit ;
+	rdf:rest rdf:nil .
+
+:isBuildingUnitOf rdfs:comment """Diese Gebäudeeinheit ist Teil weder einer anderen Gebäudeeinheit
+oder eines Gebäudes."""@de , 
+		"This building unit is part of either the given other building unit or building."@en ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#" ;
+	rdfs:label "is building unit of"@en , "ist Gebäudeeinheit von"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#isCampusOf
+
+:isCampusOf a owl:ObjectProperty ;
+	rdfs:domain :Campus ;
+	rdfs:comment """Dies ist der Campus der gegebenen Bildungseinrichtung. Der Objektbereich ist
+offen für alle Individuen."""@de , 
+		"""This is the campus of the given educational institute. The range of this property is
+open for all Individuals."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "is campus of"@en , "ist der Campus von"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#isPartOfCampus
+
+:isPartOfCampus a owl:ObjectProperty ;
+	rdfs:subPropertyOf schema:containedInPlace ;
+	rdfs:domain :Building ;
+	rdfs:range :Campus ;
+	rdfs:comment "Dieses Gebäude befindet sich am gegebenen Campus."@de ,
+		"This building is part of the given campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "am Campus"@de , "at Campus"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#locationPoint
+
+:locationPoint a owl:ObjectProperty ;
+	rdfs:subPropertyOf ogc:hasGeometry ;
+	rdfs:domain :Building ;
+	rdfs:range <http://www.opengis.net/ont/sf#Point> ;
+	rdfs:comment "Dieses Gebäude befindet sich am gegebenen Standortspunkt."@de ,
+		"This building is located at the given location point."@en ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab#spatial" ;
+	rdfs:label "location point"@en , "standortspunkt"@de .
+# 
+# http://schema.org/containedInPlace
+
+schema:containedInPlace a owl:ObjectProperty ;
+	rdfs:isDefinedBy <http://schema.org/> .
+# 
+# http://schema.org/containsPlace
+
+schema:containsPlace a owl:ObjectProperty ;
+	rdfs:isDefinedBy <http://schema.org/> .
+# 
+# 
+# 
+# ###################################
+# #
+# #    Data properties
+# #
+# ###################################
+# 
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#buildingCode
+
+:buildingCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :spatialIdentifier ;
+	rdfs:domain :Building ;
+	rdfs:comment """Diese Gebäude hat den gegebenen Code. Dieser Code identifiziert das Gebäude
+eindeutig auf dem gesamten Campus."""@de ,
+		"The building has the given code, which identifies the unit uniquely at the whole campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has building code"@en , "hat Gebäudecode"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#buildingTractCode
+
+:buildingTractCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :buildingUnitCode ;
+	rdfs:domain :BuildingTract ;
+	rdfs:comment """Dieser Gebäudetrakt hat den gegebenen Code, welcher diesen eindeutig am ganzen 
+Campus identifiziert."""@de ,
+		"This building tract has the given code, which indentifies it uniquely at the whole campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has building tract code"@en , "hat Gebäudetrakt-Code"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#buildingUnitCode
+
+:buildingUnitCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :spatialIdentifier ;
+	rdfs:domain :BuildingUnit ;
+	rdfs:comment """Diese Gebäudeeinheit hat den gegebenen Code. Dieser Code identifiziert
+die Gebäudeeinheit eindeutig auf dem gesamten Campus."""@de ,
+		"The building unit has the given code, which identifies the unit uniquely on the whole campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Gebäudeeinheit hat den Code"@de , "has building unit code"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#capacity
+
+:capacity a owl:DatatypeProperty ;
+	rdfs:domain :Room ;
+	rdfs:range xsd:integer ;
+	rdfs:comment """Diese Eigenschaft beschreibt die Kapazität eines Raumes für dessen Hauptfunktion. Im
+Falle eines Auditorium wäre es die Anzahl an Personen, die nach Berücksichtigung von rechtlichen 
+Rahmenbedingungen im Raum Platz finden können um einer Veranstaltung beizuwohnen."""@de ,
+		"""This is used to indicate the capacity of a room when performing the default function. In case
+of a lecture room this capacity will be the number of persons, which can (are allowed to) take part in
+the event, which takes place in this room (considering legal circumstances)."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has capacity"@en , "hat Kapazität"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#floorCode
+
+:floorCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :buildingUnitCode ;
+	rdfs:domain :Floor ;
+	rdfs:comment """Dieses Stockwerk hat den gegebenen Code, welcher dieses eidneutig am ganzen
+Campus identifiziert."""@de , 
+		"This floor has the given code, which identifies it uniquely at the whole campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has floor code"@en , "hat Stockwerkcode"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#floorSectionCode
+
+:floorSectionCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :buildingUnitCode ;
+	rdfs:domain :FloorSection ;
+	rdfs:comment "Dieser Stockwerkbereich hat den gegebenen Code."@de ,
+		"This floor section has the given code."@en ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#" ;
+	rdfs:label "has floor section code"@en , "hat Stockwerkbereichs-Code"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#roomCode
+
+:roomCode a owl:DatatypeProperty ;
+	rdfs:subPropertyOf :buildingUnitCode ;
+	rdfs:domain :Room ;
+	rdfs:comment """Dieser Raum hat den gegebenen Code, welcher ihn eindeutig am 
+Campus identifiziert."""@de ,
+		"This room has the given code, which identifies it uniquely at the whole campus."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "has room code"@en , "hat Raumcode"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#spatialIdentifier
+
+:spatialIdentifier a owl:DatatypeProperty ;
+	rdfs:subPropertyOf dct:identifier ;
+	a owl:FunctionalProperty ;
+	rdfs:domain ogc:Feature ;
+	rdfs:comment "Specifies an unambiguous identifier of this feature in a certain context."@en ,
+		"Spezifiziert die eindeutige Kennung des räumlichen Merkmals."@de ;
+	rdfs:isDefinedBy "http://finder.tuwien.ac.at/vocab/spatial#"@de ;
+	rdfs:label "has spatial identifier"@en , "hat räumliche Kennung"@de .
+# 
+# http://purl.org/dc/terms/identifier
+
+dct:identifier a owl:DatatypeProperty .
+# 
+# 
+# 
+# ###################################
+# #
+# #    Classes
+# #
+# ###################################
+# 
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#AccessUnit
+
+:AccessUnit a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment "A building unit that provides access to a building unit like a room or a building."@de ,
+		"""Eine Gebäudeeinheit, die einen Zugang zu einer Gebäudeeinheit wie zum Beispiel zu
+einem Raum oder einem Gebäude darstellt."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Access unit"@en , "Zutrittseinheit"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Auditorium
+
+:Auditorium a owl:Class ;
+	rdfs:subClassOf :Room ;
+	owl:disjointWith :OfficeRoom ;
+	rdfs:comment """A auditorium is a room built to enable an audience to hear and watch performances.
+In an university this performaces are usually lectures."""@en ,
+		"""Ein Auditorium ist ein Raum, welcher es einer Menge von Zusehern ermöglicht Vörführungen 
+zu hören oder sich anzusehen. An der Universität sind  diese Vorführungen in der Regel 
+Vorlesungen."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Auditorium"@de , "Auditorium"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Building
+
+:Building a owl:Class ;
+	rdfs:subClassOf ogc:Feature ;
+	owl:disjointWith :BuildingUnit , :Campus ;
+	rdfs:comment "Beschreibt ein Gebäude, welches eigenständig existiert."@de ,
+		"Describes a building that exists independently."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Building"@en , "Gebäude"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#BuildingTract
+
+:BuildingTract a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """A building tract is a building unit. It decomposes a building horizontally in 
+(mostly disjunctive) vertical areas, which can contain  further building units like a room."""@en ,
+	"""Ein Gebäudetrakt ist eine Gebäudeeinheit. Dieser zerlegt ein Gebäude horizontal in 
+(meistens disjunktive) vertikale Bereiche, die weitere Gebäudeeinheiten, wie einen Raum, 
+beinhalten kann."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Building tract"@en , "Gebäudetrakt"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#BuildingUnit
+
+:BuildingUnit a owl:Class ;
+	rdfs:subClassOf ogc:Feature ;
+	owl:disjointWith :Campus ;
+	rdfs:comment """A building unit, which can consist of further building units. A building unit is 
+characterized by a (three-dimensional) area that can be assigned to a building. For example, the floor
+of a building is a buidling unit as well as the balcony, which is located on this floor."""@en ,
+	"""Eine Gebäudeeinheit, die aus weiteren Gebäudeeinheiten bestehen kann. Eine Gebäudeeinheit ist 
+charakterisiert durch einen drei-dimensionalen Bereich, der einem Gebäude zugeordnet werden kann. Das 
+Stockwerk eines Gebäudes ist zum Beispiel eine Gebäudeeinheit sowie der Balkon auf diesem 
+Stockwerk."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Building unit"@en , "Gebäudeeinheit"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Campus
+
+:Campus a owl:Class ;
+	rdfs:subClassOf ogc:Feature ;
+	rdfs:comment """Campus beschreibt einen zusammengehörenden Komplex von Gebäuden, die zur selben 
+Bildungseinrichtung gehören."@de ,
+		"""Campus describes a collection of buildings that are affiliated with the same 
+educational institute."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Campus"@en , "Universitätsgelände"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#ComputerRoom
+
+:ComputerRoom a owl:Class ;
+	rdfs:subClassOf :Room ;
+	rdfs:comment "A computer room is a room, which offers a working place with multiple computers."@en ,
+		"Ein Computerraum ist Raum in welchem ein Arbeitsplatz mit mehreren Computern angeboten wird."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Computer room"@en , "Computerraum"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Corridor
+
+:Corridor a owl:Class ;
+	rdfs:subClassOf :PassageWay , :Room ;
+	owl:disjointWith :SeminarRoom ;
+	rdfs:comment "A corridor."@en , "Ein Flur."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Corridor"@en , "Flur"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Door
+
+:Door a owl:Class ;
+	rdfs:subClassOf :AccessUnit ;
+	rdfs:comment "A simple door."@en , "Eine einfache Tür."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Door"@en , "Tür"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Elevator
+
+:Elevator a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment "Beschreibt einen Lift."@de , "Describes an elevator."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Elevator"@en , "Lift"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Entrance
+
+:Entrance a owl:Class ;
+	rdfs:subClassOf :AccessUnit ;
+	rdfs:comment "Beschreibt den Eintritt zu einem Gebäude."@de , "Describes an entrance to a building."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Eintritt"@de , "Entrance"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Exit
+
+:Exit a owl:Class ;
+	rdfs:subClassOf :AccessUnit ;
+	rdfs:comment "Beschreibt einen Ausgang eines Gebäudes."@de , "Describes an exit of the building."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Ausgang"@de , "Exit"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Floor
+
+:Floor a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """Beschreibt das Stockwerk einer Gebäudeeinheit bzw. eines Gebäudes. 
+Ein Stockwerk zerlegt eine Gebäudeeinheit bzw. Gebäude vertikal in (meist disjunkte)
+horizontale Bereiche. welcher weitere Gebäudeeinheiten, wie zum Beispiel einen Raum 
+beinhalten kann."""@de ,
+		"""Describes a floor of a building unit resp. building. A floor decompose a 
+building unit resp. building vertically in (mostly disjunctive)
+horizontal areas, which can contain further building units like a room."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Floor"@en , "Stockwerk"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#FloorSection
+
+:FloorSection a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """A unique identifiable part of a floor inside a building that is distinct 
+from other parts of the same floor."""@en ,
+		"""Ein eindeutig identifizierbarer Teil eines Stockwerks innerhalb eines Gebäudes,
+welcher unterscheidbar ist von anderen Teilen des Stockwerks."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Floor section"@en , "Stockwerkbereich"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#LearningRoom
+
+:LearningRoom a owl:Class ;
+	rdfs:subClassOf :Room ;
+	rdfs:comment "A learning room, which can be used by students to learn."@en ,
+		"Ein Lernraum, der von Studenten verwendet werden kann um zu lernen."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Learning room"@en , "Lernraum"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#OfficeRoom
+
+:OfficeRoom a owl:Class ;
+	rdfs:subClassOf :Room ;
+	rdfs:comment """Beschreibt einen Büroraum. Ein Büroraum ist ein Arbeitsplatz einer Person, 
+der in der Regel nicht öffentlich zugänglich ist."""@de ,
+		"""Describes an office room. An office room is in general a working place of a person,
+which is not public accessible."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Büroraum"@de , "Office room"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#PassageWay
+
+:PassageWay a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """A building unit that have the main purpose to be a way from one point to another
+on the same floor of a building."""@en ,
+		"""Eine Gebäudeeinheit dessen Hauptzweck es ist ein Weg zwischen zwei Punkten im selben 
+Stockwerk in einem Gebäude zu bilden."""@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Durchgang"@de , "Passageway"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Room
+
+:Room a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """Beschreibt einen Raum und dieser Raum kann keine weiteren Gebäudeeinheiten 
+beinhalten - also eine atomare Gebäudeeinheit."""@de ,
+		"""Describes a room and this room can not contain further building units - it is an 
+atomic building unit."""@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Raum"@de , "Room"@en .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#SanitaryRoom
+
+:SanitaryRoom a owl:Class ;
+	rdfs:subClassOf :Room ;
+	owl:disjointWith :SeminarRoom ;
+	rdfs:comment "A sanitary room."@en , "Ein Sanitärraum."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Sanitary room"@en , "Sanitärraum"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#SeminarRoom
+
+:SeminarRoom a owl:Class ;
+	rdfs:subClassOf :Room ;
+	rdfs:comment "A seminar room is a room, which is used for seminars."@en ,
+		"Ein Seminarraum ist ein Raum, der zur Abhaltung von Seminaren genutzt wird."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Seminar room"@en , "Seminarraum"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#Stairway
+
+:Stairway a owl:Class ;
+	rdfs:subClassOf :BuildingUnit ;
+	rdfs:comment """Beschreibt eine Stiege, die nicht notwendigerweise den Zweck erfüllt von einem Stockwerk 
+in ein anderes zu gelangen."""@de,
+		"Describes a stairway that not necessarily connects two floors."@en ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Stairway"@en , "Stiege"@de .
+# 
+# http://finder.tuwien.ac.at/vocab/spatial#WC
+
+:WC a owl:Class ;
+	rdfs:subClassOf :SanitaryRoom ;
+	rdfs:comment "A restroom/toilet/WC."@en , "Eine Toilette/WC."@de ;
+	rdfs:isDefinedBy <http://finder.tuwien.ac.at/vocab/spatial#> ;
+	rdfs:label "Restroom"@en , "WC"@de .
+# 
+# http://xmlns.com/foaf/0.1/Agent
+
+foaf:Agent a owl:Class ;
+	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> .
+# 
+# http://xmlns.com/foaf/0.1/Person
+
+foaf:Person a owl:Class ;
+	rdfs:subClassOf foaf:Agent ;
+	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> .
+# 
+# 
+# 
+# ###################################
+# #
+# #    Individuals
+# #
+# ###################################
+# 
+# 
+# http://finder.tuwien.ac.at/person/id/Kevin_Haller
+
+<http://finder.tuwien.ac.at/person/id/Kevin_Haller> a owl:NamedIndividual , foaf:Person .
+# 
+# 
+# 
+# ###################################
+# #
+# #    General axioms
+# #
+# ###################################
+# 
+# 
+
+_:genid7 a owl:AllDisjointClasses ;
+	owl:members _:genid12 .
+
+_:genid12 a rdf:List ;
+	rdf:first :Auditorium ;
+	rdf:rest _:genid11 .
+
+_:genid11 a rdf:List ;
+	rdf:first :ComputerRoom ;
+	rdf:rest _:genid10 .
+
+_:genid10 a rdf:List ;
+	rdf:first :Corridor ;
+	rdf:rest _:genid9 .
+
+_:genid9 a rdf:List ;
+	rdf:first :OfficeRoom ;
+	rdf:rest _:genid8 .
+
+_:genid8 a rdf:List ;
+	rdf:first :SanitaryRoom ;
+	rdf:rest rdf:nil .
+
+_:genid13 a owl:AllDisjointClasses ;
+	owl:members _:genid16 .
+
+_:genid16 a rdf:List ;
+	rdf:first :Auditorium ;
+	rdf:rest _:genid15 .
+
+_:genid15 a rdf:List ;
+	rdf:first :Corridor ;
+	rdf:rest _:genid14 .
+
+_:genid14 a rdf:List ;
+	rdf:first :OfficeRoom ;
+	rdf:rest rdf:nil .
